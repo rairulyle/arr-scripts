@@ -22,16 +22,14 @@ getArrAppInfo () {
   # Get Arr App information
   if [ -z "$arrUrl" ] || [ -z "$arrApiKey" ]; then
     arrUrlBase="$(sed -n 's:.*<UrlBase>\(.*\)</UrlBase>.*:\1:p' /config/config.xml | head -n1)"
-    if [ -n "$arrUrlBase" ]; then
+    if [ -z "$arrUrlBase" ]; then
+      arrUrlBase=""
+    else
       arrUrlBase="/$(echo "$arrUrlBase" | sed 's:^/*::; s:/*$::')"
     fi
     arrName="$(sed -n 's:.*<InstanceName>\(.*\)</InstanceName>.*:\1:p' /config/config.xml | head -n1)"
     arrApiKey="$(sed -n 's:.*<ApiKey>\(.*\)</ApiKey>.*:\1:p' /config/config.xml | head -n1)"
     arrPort="$(sed -n 's:.*<Port>\(.*\)</Port>.*:\1:p' /config/config.xml | head -n1)"
-    if [ -z "$arrPort" ]; then
-      log "ERROR :: Could not read Port from /config/config.xml"
-      exit 1
-    fi
     arrUrl="http://127.0.0.1:${arrPort}${arrUrlBase}"
   fi
 }
@@ -40,7 +38,8 @@ verifyApiAccess () {
   until false
   do
     arrApiTest=""
-
+    arrApiVersion=""
+    
     # Try API v3 first (current standard for Lidarr/Radarr/Sonarr)
     arrApiVersion="v3"
     arrApiTest="$(curl -fsS "$arrUrl/api/$arrApiVersion/system/status?apikey=$arrApiKey" 2>/dev/null | jq -er '.instanceName // .appName // empty' 2>/dev/null || true)"
