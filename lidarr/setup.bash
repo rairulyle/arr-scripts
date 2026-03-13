@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.4.5"
+scriptVersion="1.5.0"
 SMA_PATH="/usr/local/sma"
 
 if [ -f /config/setup_version.txt ]; then
@@ -25,23 +25,25 @@ apk add -U --upgrade --no-cache \
   xq \
   git \
   gcc \
+  g++ \
   ffmpeg \
   imagemagick \
   opus-tools \
   opustags \
   python3-dev \
   libc-dev \
+  llvm-dev \
+  libffi-dev \
   uv \
   parallel \
   npm && \
 echo "*** install freyr client ***" && \
-apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing atomicparsley && \
+apk add --no-cache -X https://dl-cdn.alpinelinux.org/alpine/edge/testing atomicparsley && \
 npm install -g miraclx/freyr-js &&\
 echo "*** install python packages ***" && \
 uv pip install --system --upgrade --no-cache-dir --break-system-packages \
   jellyfish \
   beautifulsoup4 \
-  yt-dlp \
   beets \
   yq \
   pyxDamerauLevenshtein \
@@ -56,6 +58,21 @@ uv pip install --system --upgrade --no-cache-dir --break-system-packages \
   deemix \
   langdetect \
   apprise  && \
+echo "*** install nightly yt-dlp and beets without the problematic replaygain plugin dependencies ***" && \
+uv pip install --system --upgrade --no-cache-dir --break-system-packages --pre yt-dlp[default] \
+  --no-deps beets \
+  confuse \
+  mediafile \
+  munkres \
+  musicbrainzngs \
+  pyyaml \
+  unidecode && \
+echo "*** install deno ***" && \
+apk add --no-cache deno \
+  --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
+  --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main && \
+echo "*** install deno done ***" && \
+deno --version
 echo "************ setup SMA ************"
 if [ -d "${SMA_PATH}"  ]; then
   rm -rf "${SMA_PATH}"
