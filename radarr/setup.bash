@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.3.2"
+scriptVersion="1.4.0"
 SMA_PATH="/usr/local/sma"
 
 if [ -f /config/setup_version.txt ]; then
@@ -30,8 +30,15 @@ apk add -U --update --no-cache \
 echo "************ install python packages ************" && \
 pip install --upgrade --no-cache-dir -U  --break-system-packages \
   excludarr \
-  yt-dlp \
   yq && \
+echo "*** install nightly yt-dlp ***" && \
+pip install --upgrade --no-cache-dir -U --break-system-packages --pre yt-dlp[default] && \
+echo "*** install deno ***" && \
+apk add --no-cache deno \
+  --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
+  --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main && \
+echo "*** install deno done ***" && \
+deno --version
 echo "************ setup SMA ************"
 if [ -d "${SMA_PATH}"  ]; then
   rm -rf "${SMA_PATH}"
@@ -63,7 +70,7 @@ fi
 wget "$recyclarr_url" -O "/recyclarr/recyclarr.tar.xz" && \
 tar -xf /recyclarr/recyclarr.tar.xz -C /recyclarr &>/dev/null && \
 chmod 777 /recyclarr/recyclarr
-apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/community dotnet9-runtime
+apk add --no-cache -X https://dl-cdn.alpinelinux.org/alpine/edge/community dotnet9-runtime
 
 mkdir -p /custom-services.d
 echo "Download QueueCleaner service..."
