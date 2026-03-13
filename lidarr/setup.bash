@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.5.1"
+scriptVersion="1.5.2"
 SMA_PATH="/usr/local/sma"
 
 if [ -f /config/setup_version.txt ]; then
@@ -44,7 +44,6 @@ echo "*** install python packages ***" && \
 uv pip install --system --upgrade --no-cache-dir --break-system-packages \
   jellyfish \
   beautifulsoup4 \
-  beets \
   yq \
   pyxDamerauLevenshtein \
   pyacoustid \
@@ -57,7 +56,7 @@ uv pip install --system --upgrade --no-cache-dir --break-system-packages \
   tidal-dl \
   deemix \
   langdetect \
-  apprise  && \
+  apprise && \
 echo "*** install nightly yt-dlp and beets without the problematic replaygain plugin dependencies ***" && \
 uv pip install --system --upgrade --no-cache-dir --break-system-packages --pre yt-dlp[default] \
   --no-deps beets \
@@ -87,6 +86,9 @@ echo "************ install pip dependencies ************" && \
 uv pip install --system --break-system-packages -r ${SMA_PATH}/setup/requirements.txt
 
 mkdir -p /custom-services.d/python /config/extended
+
+# Silence GNU Parallel citation notice
+mkdir -p ~/.parallel && touch ~/.parallel/will-cite
 
 parallel ::: \
   'echo "Download QueueCleaner service..." && curl -sfL https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/QueueCleaner -o /custom-services.d/QueueCleaner && echo "Done"' \
